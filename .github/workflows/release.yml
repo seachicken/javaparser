@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: build
+
+    - name: Upload to GitHub Releases
+      run: ls ./build/libs
+
