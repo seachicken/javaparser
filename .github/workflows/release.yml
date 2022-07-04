@@ -3,15 +3,14 @@ name: Release
 on:
   push:
     tags:
-      - "*"
+      - "javaparser-*"
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - uses: actions/checkout@v3
@@ -27,5 +26,5 @@ jobs:
         arguments: build
 
     - name: Upload to GitHub Releases
-      run: ls ./build/libs
+      run: gh release create --draft --title ${{ github.ref_name }} ${{ github.ref_name }} ./build/libs/${{ github.ref_name }}.jar
 
