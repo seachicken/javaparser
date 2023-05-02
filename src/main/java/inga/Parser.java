@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Parser {
     public JCTree parse(Path path) {
@@ -41,11 +42,20 @@ public class Parser {
                     variableDecl.name.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
+            var fqNames = methodDecl.body.stats.stream().map(stat ->
+                            ((com.sun.tools.javac.tree.JCTree.JCNewClass)
+                                    ((com.sun.tools.javac.tree.JCTree.JCFieldAccess)
+                                            ((com.sun.tools.javac.tree.JCTree.JCMethodInvocation)
+                                                    ((com.sun.tools.javac.tree.JCTree.JCExpressionStatement)
+                                                            stat).expr).meth).selected).clazz.toString())
+                    .collect(Collectors.toList());
+            fqNames.add(methodDecl.name.toString());
             return new JCMethodDecl(
                     tree.getKind().name(),
                     tree.getStartPosition(),
                     getChildren(tree).stream().map(this::parse).toList(),
-                    methodDecl.name.toString()
+                    methodDecl.name.toString(),
+                    String.join(".", fqNames)
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
             return new JCClassDecl(
