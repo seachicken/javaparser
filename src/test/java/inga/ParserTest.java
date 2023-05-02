@@ -2,6 +2,7 @@ package inga;
 
 import inga.model.JCClassDecl;
 import inga.model.JCMethodDecl;
+import inga.model.JCPackageDecl;
 import inga.model.JCTree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +23,15 @@ class ParserTest {
     void parseClass() {
         var tree = parser.parse(readFile("java/Class.java"));
         JCTree file = findChild(tree, "COMPILATION_UNIT");
+
+        JCPackageDecl jcPackage = findChild(file, "PACKAGE");
+        assertThat(jcPackage.getPackageName()).isEqualTo("fixtures.java");
+
         JCClassDecl jcClass = findChild(file, "CLASS");
+        assertThat(jcClass.getName()).isEqualTo("Class");
 
         JCMethodDecl method = findChild(jcClass, "METHOD");
         assertThat(method.getName()).isEqualTo("method");
-        assertThat(method.getFqName()).isEqualTo("ClassA.method");
     }
 
     private <T extends JCTree> T findChild(JCTree tree, String type) {

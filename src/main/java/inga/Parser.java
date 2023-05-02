@@ -27,7 +27,14 @@ public class Parser {
     }
 
     private JCTree parse(com.sun.tools.javac.tree.JCTree tree) {
-        if (tree instanceof com.sun.tools.javac.tree.JCTree.JCImport jcImport) {
+        if (tree instanceof com.sun.tools.javac.tree.JCTree.JCPackageDecl packageDecl) {
+            return new JCPackageDecl(
+                    tree.getKind().name(),
+                    tree.getStartPosition(),
+                    getChildren(tree).stream().map(this::parse).toList(),
+                    packageDecl.getPackageName().toString()
+            );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCImport jcImport) {
             return new JCImport(
                     tree.getKind().name(),
                     tree.getStartPosition(),
@@ -42,20 +49,11 @@ public class Parser {
                     variableDecl.name.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
-            var fqNames = methodDecl.body.stats.stream().map(stat ->
-                            ((com.sun.tools.javac.tree.JCTree.JCNewClass)
-                                    ((com.sun.tools.javac.tree.JCTree.JCFieldAccess)
-                                            ((com.sun.tools.javac.tree.JCTree.JCMethodInvocation)
-                                                    ((com.sun.tools.javac.tree.JCTree.JCExpressionStatement)
-                                                            stat).expr).meth).selected).clazz.toString())
-                    .collect(Collectors.toList());
-            fqNames.add(methodDecl.name.toString());
             return new JCMethodDecl(
                     tree.getKind().name(),
                     tree.getStartPosition(),
                     getChildren(tree).stream().map(this::parse).toList(),
-                    methodDecl.name.toString(),
-                    String.join(".", fqNames)
+                    methodDecl.name.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
             return new JCClassDecl(
