@@ -26,5 +26,4 @@ jobs:
         arguments: build
 
     - name: Upload to GitHub Releases
-      run: gh release create --draft --title ${{ github.ref_name }} ${{ github.ref_name }} ./build/libs/${{ github.ref_name }}.jar
-
+      run: gh release create --title ${{ github.ref_name }} --generate-notes ${{ github.ref_name }} ./build/libs/${{ github.ref_name }}.jar
