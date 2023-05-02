@@ -1,32 +1,24 @@
 package inga;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.serialization.JavaParserJsonSerializer;
-
-import javax.json.Json;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Paths;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        JavaParser javaParser = new JavaParser();
-        JavaParserJsonSerializer jsonSerializer = new JavaParserJsonSerializer();
+        var parser = new Parser();
         Scanner scanner = new Scanner(System.in);
+        var mapper = new ObjectMapper();
+
         while (scanner.hasNextLine()) {
             String path = scanner.nextLine();
-            try (var writer = new StringWriter();
-                 var jsonGenerator = Json.createGenerator(writer)) {
-                javaParser.parse(Paths.get(path))
-                        .getResult()
-                        .ifPresent(ast -> {
-                            jsonSerializer.serialize(ast, jsonGenerator);
-                            System.out.println(writer);
-                        });
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
+            var tree = parser.parse(Path.of(path));
+            try {
+                var json = mapper.writeValueAsString(tree);
+                System.out.println(json);
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException(e);
             }
         }
     }

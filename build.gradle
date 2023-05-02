@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'inga'
-version '0.1.0'
+version '0.1.1'
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -25,13 +25,24 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.24.2'
-    implementation 'com.github.javaparser:javaparser-core-serialization:3.24.2'
-    implementation 'org.glassfish:javax.json:1.1.4'
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 test {
     useJUnitPlatform()
+}
+
+def jvmArgs = [
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+]
+
+tasks.withType(JavaCompile).configureEach {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    options.compilerArgs.addAll(jvmArgs)
 }
