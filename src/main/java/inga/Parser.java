@@ -34,6 +34,7 @@ public class Parser {
         if (tree instanceof com.sun.tools.javac.tree.JCTree.JCPackageDecl packageDecl) {
             return new JCPackageDecl(
                     tree.getKind().name(),
+                    tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
@@ -42,6 +43,7 @@ public class Parser {
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCImport jcImport) {
             return new JCImport(
                     tree.getKind().name(),
+                    tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
@@ -50,6 +52,7 @@ public class Parser {
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
             return new JCVariableDecl(
                     tree.getKind().name(),
+                    tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
@@ -58,6 +61,7 @@ public class Parser {
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
             return new JCMethodDecl(
                     tree.getKind().name(),
+                    tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
@@ -66,6 +70,7 @@ public class Parser {
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
             return new JCClassDecl(
                     tree.getKind().name(),
+                    tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
@@ -74,6 +79,7 @@ public class Parser {
         } else {
             return new JCTree(
                     tree.getKind().name(),
+                    tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList()
@@ -88,6 +94,9 @@ public class Parser {
         }
         if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
             results.addAll(classDecl.defs);
+        }
+        if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
+            results.addAll(methodDecl.body.stats);
         }
         return results;
     }

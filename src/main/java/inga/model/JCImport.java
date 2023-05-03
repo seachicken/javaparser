@@ -9,9 +9,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class JCImport extends JCTree {
     private String fqName;
-    public JCImport(String type, int startPos, int endPos, List<JCTree> children,
+    public JCImport(String type, int pos, int startPos, int endPos, List<JCTree> children,
                     String fqName) {
-        super(type, startPos, endPos, children);
+        super(type, pos, startPos, endPos, children);
         this.fqName = fqName;
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class JCTree {
     private String type;
+    private int pos;
     private int startPos;
     private int endPos;
     private List<JCTree> children;
