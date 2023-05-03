@@ -96,7 +96,9 @@ public class Parser {
             results.addAll(classDecl.defs);
         }
         if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
-            results.addAll(methodDecl.body.stats);
+            if (methodDecl.body != null) {
+                results.addAll(methodDecl.body.stats);
+            }
         }
         return results;
     }
