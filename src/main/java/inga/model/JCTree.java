@@ -12,5 +12,6 @@ import java.util.List;
 public class JCTree {
     private String type;
     private int startPos;
+    private int endPos;
     private List<JCTree> children;
 }

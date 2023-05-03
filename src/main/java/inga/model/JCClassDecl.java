@@ -10,9 +10,9 @@ import java.util.List;
 public class JCClassDecl extends JCTree {
     private String name;
 
-    public JCClassDecl(String type, int startPos, List<JCTree> children,
+    public JCClassDecl(String type, int startPos, int endPos, List<JCTree> children,
                        String name) {
-        super(type, startPos, children);
+        super(type, startPos, endPos, children);
         this.name = name;
     }
 }

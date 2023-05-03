@@ -10,9 +10,9 @@ import java.util.List;
 public class JCPackageDecl extends JCTree {
     private String packageName;
 
-    public JCPackageDecl(String type, int startPos, List<JCTree> children,
+    public JCPackageDecl(String type, int startPos, int endPos, List<JCTree> children,
                          String packageName) {
-        super(type, startPos, children);
+        super(type, startPos, endPos, children);
         this.packageName = packageName;
     }
 }
