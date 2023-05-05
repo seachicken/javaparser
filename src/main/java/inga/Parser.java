@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Parser {
     public JCTree parse(Path path) {
@@ -18,10 +17,11 @@ public class Parser {
             var task = (JavacTask) compiler.getTask(null, fileManager, null, null, null, objects);
             var tree = new JCTree();
             for (var unit : task.parse()) {
-                tree.setChildren(List.of(parse(
-                        (com.sun.tools.javac.tree.JCTree) unit,
-                        (com.sun.tools.javac.tree.JCTree.JCCompilationUnit) unit
-                )));
+                tree.setChildren(
+                        List.of(parse(
+                                (com.sun.tools.javac.tree.JCTree) unit,
+                                (com.sun.tools.javac.tree.JCTree.JCCompilationUnit) unit
+                        )));
             }
             return tree;
         } catch (IOException e) {
@@ -49,14 +49,23 @@ public class Parser {
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
                     jcImport.getQualifiedIdentifier().toString()
             );
-        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
-            return new JCVariableDecl(
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
+            return new JCClassDecl(
                     tree.getKind().name(),
                     tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    variableDecl.name.toString()
+                    classDecl.name.toString()
+            );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCNewClass newClass) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    newClass.clazz.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
             return new JCMethodDecl(
@@ -67,14 +76,32 @@ public class Parser {
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
                     methodDecl.name.toString()
             );
-        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
-            return new JCClassDecl(
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
+            return new JCVariableDecl(
                     tree.getKind().name(),
                     tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    classDecl.name.toString()
+                    variableDecl.name.toString()
+            );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCFieldAccess fieldAccess) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    fieldAccess.name.toString()
+            );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCIdent ident) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    ident.name.toString()
             );
         } else {
             return new JCTree(
@@ -91,14 +118,41 @@ public class Parser {
         var results = new ArrayList<com.sun.tools.javac.tree.JCTree>();
         if (tree instanceof com.sun.tools.javac.tree.JCTree.JCCompilationUnit unit) {
             results.addAll(unit.defs);
-        }
-        if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
             results.addAll(classDecl.defs);
-        }
-        if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
             if (methodDecl.body != null) {
                 results.addAll(methodDecl.body.stats);
             }
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
+            if (variableDecl.vartype != null) {
+                results.add(variableDecl.vartype);
+            }
+            if (variableDecl.init != null) {
+                results.add(variableDecl.init);
+            }
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCIf jcIf) {
+            if (jcIf.thenpart != null) {
+                results.add(jcIf.thenpart);
+            }
+            if (jcIf.elsepart != null) {
+                results.add(jcIf.elsepart);
+            }
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCAssign jcAssign) {
+            if (jcAssign.lhs != null) {
+                results.add(jcAssign.lhs);
+            }
+            if (jcAssign.rhs != null) {
+                results.add(jcAssign.rhs);
+            }
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCBlock block) {
+            results.addAll(block.stats);
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCExpressionStatement expressionStatement) {
+            results.add(expressionStatement.expr);
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodInvocation methodInvocation) {
+            results.add(methodInvocation.meth);
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCFieldAccess fieldAccess) {
+            results.add(fieldAccess.selected);
         }
         return results;
     }
