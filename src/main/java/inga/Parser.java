@@ -124,6 +124,10 @@ public class Parser {
             if (methodDecl.body != null) {
                 results.addAll(methodDecl.body.stats);
             }
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCLambda lambda) {
+            if (lambda.body != null) {
+                results.add(lambda.body);
+            }
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
             if (variableDecl.vartype != null) {
                 results.add(variableDecl.vartype);
@@ -145,12 +149,17 @@ public class Parser {
             if (jcAssign.rhs != null) {
                 results.add(jcAssign.rhs);
             }
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCReturn jcReturn) {
+            if (jcReturn.expr != null) {
+                results.add(jcReturn.expr);
+            }
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCBlock block) {
             results.addAll(block.stats);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCExpressionStatement expressionStatement) {
             results.add(expressionStatement.expr);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodInvocation methodInvocation) {
             results.add(methodInvocation.meth);
+            results.addAll(methodInvocation.args);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCFieldAccess fieldAccess) {
             results.add(fieldAccess.selected);
         }
