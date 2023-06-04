@@ -94,6 +94,24 @@ public class Parser {
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
                     fieldAccess.name.toString()
             );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree primitiveTypeTree) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    primitiveTypeTree.typetag.name()
+            );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCLiteral literal) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    literal.typetag.name()
+            );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCIdent ident) {
             return new JCExpression(
                     tree.getKind().name(),
@@ -121,8 +139,9 @@ public class Parser {
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
             results.addAll(classDecl.defs);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
+            results.addAll(methodDecl.params);
             if (methodDecl.body != null) {
-                results.addAll(methodDecl.body.stats);
+                results.add(methodDecl.body);
             }
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCLambda lambda) {
             if (lambda.body != null) {

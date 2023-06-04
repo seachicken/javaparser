@@ -7,14 +7,17 @@ public class Class {
 
     public void method() {
         classA.method();
-        new ClassA().method();
-        privateMethod();
     }
 
-    private void privateMethod() {
-        int variable = 0;
-        if (true) {
-            variable = classA.method();
-        }
+    public void methodOverload(int i) {
+        int v = 0;
+    }
+
+    public void methodOverload(long l) {
+        int v = 0;
+    }
+
+    public void methodOverload(String s) {
+        int v = 0;
     }
 }
