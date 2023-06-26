@@ -2,6 +2,7 @@ package inga;
 
 import inga.model.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -50,6 +51,26 @@ class ParserTest {
 
         JCExpression stringType = findChild(findChild(overloadMethods.get(2), "VARIABLE"), "IDENTIFIER");
         assertThat(stringType.getName()).isEqualTo("String");
+    }
+
+    @Nested
+    class Spring {
+        @Test
+        void parseGetMethod() {
+            var tree = parser.parse(readFile("spring/RestController.java"));
+            JCTree file = findChild(tree, "COMPILATION_UNIT");
+            JCClassDecl jcClass = findChild(file, "CLASS");
+
+            List<JCExpression> annotations = findChildren(findChild(jcClass, "MODIFIERS"), "ANNOTATION");
+            assertThat(annotations)
+                    .extracting(JCExpression::getName)
+                    .containsExactly("RestController", "RequestMapping");
+            assertThat(annotations.get(0).getChildren())
+                    .isEmpty();
+            assertThat(annotations.get(1).getChildren())
+                    .extracting(JCTree::getType)
+                    .containsExactly("ASSIGNMENT");
+        }
     }
 
     private <T extends JCTree> T findChild(JCTree tree, String type) {

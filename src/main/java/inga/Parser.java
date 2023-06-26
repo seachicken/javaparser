@@ -121,6 +121,15 @@ public class Parser {
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
                     ident.name.toString()
             );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCAnnotation annotation) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    annotation.annotationType.toString()
+            );
         } else {
             return new JCTree(
                     tree.getKind().name(),
@@ -137,6 +146,7 @@ public class Parser {
         if (tree instanceof com.sun.tools.javac.tree.JCTree.JCCompilationUnit unit) {
             results.addAll(unit.defs);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
+            results.add(classDecl.mods);
             results.addAll(classDecl.defs);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCNewClass newClass) {
             results.addAll(newClass.args);
@@ -185,6 +195,10 @@ public class Parser {
             results.addAll(methodInvocation.args);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCFieldAccess fieldAccess) {
             results.add(fieldAccess.selected);
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCModifiers modifiers) {
+            results.addAll(modifiers.annotations);
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCAnnotation annotation) {
+            results.addAll(annotation.args);
         }
         return results;
     }
