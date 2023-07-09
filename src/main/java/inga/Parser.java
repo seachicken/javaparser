@@ -110,7 +110,7 @@ public class Parser {
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    literal.typetag.name()
+                    literal.value == null ? "" : literal.value.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCIdent ident) {
             return new JCExpression(
@@ -151,6 +151,7 @@ public class Parser {
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCNewClass newClass) {
             results.addAll(newClass.args);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
+            results.add(methodDecl.mods);
             results.addAll(methodDecl.params);
             if (methodDecl.body != null) {
                 results.add(methodDecl.body);
