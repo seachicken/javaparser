@@ -161,6 +161,7 @@ public class Parser {
                 results.add(lambda.body);
             }
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
+            results.add(variableDecl.mods);
             if (variableDecl.vartype != null) {
                 results.add(variableDecl.vartype);
             }
