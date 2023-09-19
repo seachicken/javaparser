@@ -147,6 +147,9 @@ public class Parser {
             results.addAll(unit.defs);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
             results.add(classDecl.mods);
+            if (classDecl.extending != null) {
+                results.add(classDecl.extending);
+            }
             results.addAll(classDecl.defs);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCNewClass newClass) {
             results.addAll(newClass.args);
