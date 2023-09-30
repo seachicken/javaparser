@@ -3,11 +3,13 @@ package inga;
 import com.sun.source.util.JavacTask;
 import inga.model.*;
 
+import javax.lang.model.element.Modifier;
 import javax.tools.ToolProvider;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Parser {
     public JCTree parse(Path path) {
@@ -129,6 +131,15 @@ public class Parser {
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
                     annotation.annotationType.toString()
+            );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCModifiers modifiers) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    modifiers.getFlags().stream().map(Modifier::name).collect(Collectors.joining(","))
             );
         } else {
             return new JCTree(
