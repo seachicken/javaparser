@@ -94,7 +94,7 @@ public class Parser {
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    typeApply.toString()
+                    typeApply.clazz.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCFieldAccess fieldAccess) {
             return new JCExpression(
