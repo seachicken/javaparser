@@ -67,7 +67,9 @@ public class Parser {
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    newClass.clazz.toString()
+                    newClass.clazz instanceof com.sun.tools.javac.tree.JCTree.JCTypeApply typeApply
+                            ? typeApply.clazz.toString()
+                            : newClass.clazz.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl) {
             return new JCMethodDecl(

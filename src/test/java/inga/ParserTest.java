@@ -34,6 +34,17 @@ class ParserTest {
     }
 
     @Test
+    void removeDiamondOperatorFromNewClass() {
+        var tree = parser.parse(readFile("java/ClassDiamondOperator.java"));
+        JCTree file = findChild(tree, "COMPILATION_UNIT");
+        JCClassDecl jcClass = findChild(file, "CLASS");
+        JCMethodDecl method = findChild(jcClass, "METHOD");
+        JCExpression newClass = findChild(findChild(findChild(method, "BLOCK"), "VARIABLE"), "NEW_CLASS");
+
+        assertThat(newClass.getName()).isEqualTo("ArrayList");
+    }
+
+    @Test
     void parseOverloadMethods() {
         var tree = parser.parse(readFile("java/Class.java"));
         JCTree file = findChild(tree, "COMPILATION_UNIT");
