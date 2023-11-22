@@ -3,11 +3,10 @@ name: Release
 on:
   push:
     tags:
-      - "javaparser-*"
+      - "v*"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -19,11 +18,17 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2
       with:
         arguments: build
-
+    - name: Set version
+      run: |
+        TAG=${{ github.ref_name }}
+        echo "VERSION=${TAG#v}" >> $GITHUB_ENV
     - name: Upload to GitHub Releases
-      run: gh release create --title ${{ github.ref_name }} --generate-notes ${{ github.ref_name }} ./build/libs/${{ github.ref_name }}.jar
+      if: "!contains(github.ref_name, 'pre')"
+      run: gh release create --title ${{ github.ref_name }} --generate-notes ${{ github.ref_name }} ./build/libs/javaparser-${VERSION}.jar
+    - name: Upload to GitHub Releases for pre-release
+      if: "contains(github.ref_name, 'pre')"
+      run: gh release create --title ${{ github.ref_name }} --generate-notes --draft ${{ github.ref_name }} ./build/libs/javaparser-${VERSION}.jar
