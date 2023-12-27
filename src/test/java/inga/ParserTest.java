@@ -64,6 +64,16 @@ class ParserTest {
         assertThat(stringType.getName()).isEqualTo("String");
     }
 
+    @Test
+    void parseConstructor() {
+        var tree = parser.parse(readFile("java/ClassConstructor.java"));
+        JCTree file = findChild(tree, "COMPILATION_UNIT");
+        JCClassDecl jcClass = findChild(file, "CLASS");
+        JCMethodDecl constructor = findChild(jcClass, "METHOD");
+
+        assertThat(constructor.getName()).isEqualTo("Class");
+    }
+
     @Nested
     class Spring {
         @Test

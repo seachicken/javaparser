@@ -12,7 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Parser {
+    private String className = "";
+
     public JCTree parse(Path path) {
+        className = "";
         var compiler = ToolProvider.getSystemJavaCompiler();
         try (var fileManager = compiler.getStandardFileManager(null, null, null)) {
             var objects = fileManager.getJavaFileObjects(path.toFile());
@@ -52,6 +55,7 @@ public class Parser {
                     jcImport.getQualifiedIdentifier().toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl) {
+            className = classDecl.name.toString();
             return new JCClassDecl(
                     tree.getKind().name(),
                     tree.getPreferredPosition(),
@@ -78,7 +82,7 @@ public class Parser {
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    methodDecl.name.toString()
+                    methodDecl.name.toString().equals("<init>") ? className : methodDecl.name.toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
             return new JCVariableDecl(
