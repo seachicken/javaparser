@@ -190,6 +190,7 @@ public class Parser {
                 results.add(methodDecl.body);
             }
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCLambda lambda) {
+            results.addAll(lambda.params);
             if (lambda.body != null) {
                 results.add(lambda.body);
             }
