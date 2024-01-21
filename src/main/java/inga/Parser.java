@@ -138,6 +138,15 @@ public class Parser {
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
                     ident.name.toString()
             );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCArrayTypeTree arrayType) {
+            return new JCExpression(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    arrayType.getType().toString()
+            );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCAnnotation annotation) {
             return new JCExpression(
                     tree.getKind().name(),
