@@ -231,6 +231,10 @@ public class Parser {
             }
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCTry jcTry) {
             results.add(jcTry.body);
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCWhileLoop loop) {
+            results.add(loop.body);
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCDoWhileLoop loop) {
+            results.add(loop.body);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCBlock block) {
             results.addAll(block.stats);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCExpressionStatement expressionStatement) {
