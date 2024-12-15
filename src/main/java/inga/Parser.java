@@ -230,6 +230,7 @@ public class Parser {
                 results.add(jcReturn.expr);
             }
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCTry jcTry) {
+            results.addAll(jcTry.resources);
             results.add(jcTry.body);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCWhileLoop loop) {
             results.add(loop.body);
