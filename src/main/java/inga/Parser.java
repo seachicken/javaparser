@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class Parser {
     private String className = "";
 
-    public JCTree parse(Path path) {
+    public JCTree parse(Path path, boolean withAnalyze) {
         className = "";
         var compiler = ToolProvider.getSystemJavaCompiler();
         try (var fileManager = compiler.getStandardFileManager(null, null, null)) {
@@ -22,6 +22,9 @@ public class Parser {
             var task = (JavacTask) compiler.getTask(null, fileManager, null, null, null, objects);
             var tree = new JCTree();
             for (var unit : task.parse()) {
+                if (withAnalyze) {
+                    task.analyze();
+                }
                 tree.setChildren(
                         List.of(parse(
                                 (com.sun.tools.javac.tree.JCTree) unit,
