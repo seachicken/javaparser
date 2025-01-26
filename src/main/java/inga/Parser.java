@@ -14,12 +14,20 @@ import java.util.stream.Collectors;
 public class Parser {
     private String className = "";
 
-    public JCTree parse(Path path, boolean withAnalyze) {
+    public JCTree parse(Path path) {
+        return parse(path, false, "");
+    }
+
+    public JCTree parse(Path path, boolean withAnalyze, String classPath) {
         className = "";
         var compiler = ToolProvider.getSystemJavaCompiler();
         try (var fileManager = compiler.getStandardFileManager(null, null, null)) {
             var objects = fileManager.getJavaFileObjects(path.toFile());
-            var task = (JavacTask) compiler.getTask(null, fileManager, null, null, null, objects);
+            List<String> options = null;
+            if (withAnalyze) {
+                options = List.of("-classpath", classPath);
+            }
+            var task = (JavacTask) compiler.getTask(null, fileManager, null, options, null, objects);
             var tree = new JCTree();
             for (var unit : task.parse()) {
                 if (withAnalyze) {

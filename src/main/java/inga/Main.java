@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import static java.util.Collections.emptyList;
+
 public class Main {
     public static void main(String[] args) {
         var parser = new Parser();
@@ -18,9 +20,12 @@ public class Main {
                     .toList();
             var path = inputs.getFirst();
             var options = inputs.subList(1, inputs.size());
+            var analyzeIndex = options.indexOf("--analyze");
+            var classPath = analyzeIndex != -1 ? options.get(analyzeIndex + 1) : "";
             var tree = parser.parse(
                     Path.of(path),
-                    options.contains("--analyze")
+                    analyzeIndex != -1,
+                    classPath
             );
             try {
                 var json = mapper.writeValueAsString(tree);
