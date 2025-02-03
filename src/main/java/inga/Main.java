@@ -19,7 +19,7 @@ public class Main {
             var path = inputs.getFirst();
             var options = inputs.subList(1, inputs.size());
             var analyzeIndex = options.indexOf("--analyze");
-            var classPath = analyzeIndex != -1 ? options.get(analyzeIndex + 1) : "";
+            var classPath = analyzeIndex + 1 < options.size() ? options.get(analyzeIndex + 1) : "";
             var tree = parser.parse(
                     Path.of(path),
                     analyzeIndex != -1,

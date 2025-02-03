@@ -14,10 +14,6 @@ import java.util.stream.Collectors;
 public class Parser {
     private String className = "";
 
-    public JCTree parse(Path path) {
-        return parse(path, false, "");
-    }
-
     public JCTree parse(Path path, boolean withAnalyze, String classPath) {
         className = "";
         var compiler = ToolProvider.getSystemJavaCompiler();
@@ -25,7 +21,10 @@ public class Parser {
             var objects = fileManager.getJavaFileObjects(path.toFile());
             List<String> options = null;
             if (withAnalyze) {
-                options = List.of("-classpath", classPath);
+                options = List.of(
+                        "-classpath", classPath,
+                        "-proc:none"
+                );
             }
             var task = (JavacTask) compiler.getTask(null, fileManager, null, options, null, objects);
             var tree = new JCTree();
@@ -93,16 +92,27 @@ public class Parser {
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    methodDecl.name.toString().equals("<init>") ? className : methodDecl.name.toString()
+                    normarizeMethodName(methodDecl.name.toString(), className)
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
+            var fqName = "";
+            if (variableDecl.type != null) {
+                if (variableDecl.type.isPrimitive()) {
+                    fqName = variableDecl.type.getTag().name();
+                } else if (variableDecl.type.getTag() == com.sun.tools.javac.code.TypeTag.ARRAY) {
+                    fqName = variableDecl.type.toString();
+                } else {
+                    fqName = variableDecl.type.tsym.flatName().toString();
+                }
+            }
             return new JCVariableDecl(
                     tree.getKind().name(),
                     tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    variableDecl.name.toString()
+                    variableDecl.name.toString(),
+                    fqName
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCTypeApply typeApply) {
             return new JCVariableDecl(
@@ -111,7 +121,8 @@ public class Parser {
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
-                    typeApply.clazz.toString()
+                    typeApply.clazz.toString(),
+                    ""
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCFieldAccess fieldAccess) {
             return new JCExpression(
@@ -262,5 +273,9 @@ public class Parser {
             results.addAll(annotation.args);
         }
         return results;
+    }
+
+    private String normarizeMethodName (String methodName, String className) {
+        return methodName.equals("<init>") ? className : methodName;
     }
 }

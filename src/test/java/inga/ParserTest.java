@@ -20,7 +20,7 @@ class ParserTest {
 
     @Test
     void parseClass() {
-        var tree = parser.parse(readFile("java/Class.java"));
+        var tree = parser.parse(readFile("java/Class.java"), false, "");
         JCTree file = findChild(tree, "COMPILATION_UNIT");
 
         JCPackageDecl jcPackage = findChild(file, "PACKAGE");
@@ -35,7 +35,7 @@ class ParserTest {
 
     @Test
     void removeDiamondOperatorFromNewClass() {
-        var tree = parser.parse(readFile("java/ClassDiamondOperator.java"));
+        var tree = parser.parse(readFile("java/ClassDiamondOperator.java"), false, "");
         JCTree file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
         JCMethodDecl method = findChild(jcClass, "METHOD");
@@ -46,7 +46,7 @@ class ParserTest {
 
     @Test
     void parseOverloadMethods() {
-        var tree = parser.parse(readFile("java/Class.java"));
+        var tree = parser.parse(readFile("java/Class.java"), false, "");
         JCTree file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
         List<JCMethodDecl> methods = findChildren(jcClass, "METHOD");
@@ -66,7 +66,7 @@ class ParserTest {
 
     @Test
     void parseConstructor() {
-        var tree = parser.parse(readFile("java/ClassConstructor.java"));
+        var tree = parser.parse(readFile("java/ClassConstructor.java"), false, "");
         JCTree file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
         JCMethodDecl constructor = findChild(jcClass, "METHOD");
@@ -78,7 +78,7 @@ class ParserTest {
     class Spring {
         @Test
         void parseGetMethod() {
-            var tree = parser.parse(readFile("spring/RestController.java"));
+            var tree = parser.parse(readFile("spring/RestController.java"), false, "");
             JCTree file = findChild(tree, "COMPILATION_UNIT");
             JCClassDecl jcClass = findChild(file, "CLASS");
 
