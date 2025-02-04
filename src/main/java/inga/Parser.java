@@ -39,6 +39,9 @@ public class Parser {
                         )));
             }
             return tree;
+        } catch (IllegalStateException e) {
+            e.printStackTrace(System.err);
+            return null;
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }

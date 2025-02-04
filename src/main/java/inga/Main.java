@@ -16,6 +16,10 @@ public class Main {
             var inputs = Arrays.stream(scanner.nextLine().split(" "))
                     .filter(input -> !input.isBlank())
                     .toList();
+            if (inputs.isEmpty()) {
+                continue;
+            }
+
             var path = inputs.getFirst();
             var options = inputs.subList(1, inputs.size());
             var analyzeIndex = options.indexOf("--analyze");
