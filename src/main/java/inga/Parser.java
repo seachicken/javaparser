@@ -4,6 +4,7 @@ import com.sun.source.util.JavacTask;
 import inga.model.*;
 
 import javax.lang.model.element.Modifier;
+import javax.tools.DiagnosticListener;
 import javax.tools.ToolProvider;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,6 +20,7 @@ public class Parser {
         var compiler = ToolProvider.getSystemJavaCompiler();
         try (var fileManager = compiler.getStandardFileManager(null, null, null)) {
             var objects = fileManager.getJavaFileObjects(path.toFile());
+            var silence = (DiagnosticListener) diagnostic -> {};
             List<String> options = null;
             if (withAnalyze) {
                 options = List.of(
@@ -26,7 +28,7 @@ public class Parser {
                         "-proc:none"
                 );
             }
-            var task = (JavacTask) compiler.getTask(null, fileManager, null, options, null, objects);
+            var task = (JavacTask) compiler.getTask(null, fileManager, silence, options, null, objects);
             var tree = new JCTree();
             for (var unit : task.parse()) {
                 if (withAnalyze) {
