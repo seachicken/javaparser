@@ -306,6 +306,8 @@ public class Parser {
             return type.getTag().name();
         } else if (type.getTag() == TypeTag.ARRAY) {
             return type.toString();
+        } else if (type instanceof Type.CapturedType) {
+            return type.getUpperBound().tsym.flatName().toString();
         } else {
             return type.tsym.flatName().toString();
         }
