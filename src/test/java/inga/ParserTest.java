@@ -39,7 +39,7 @@ class ParserTest {
         JCTree file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
         JCMethodDecl method = findChild(jcClass, "METHOD");
-        JCExpression newClass = findChild(findChild(findChild(method, "BLOCK"), "VARIABLE"), "NEW_CLASS");
+        JCVariableDecl newClass = findChild(findChild(findChild(method, "BLOCK"), "VARIABLE"), "NEW_CLASS");
 
         assertThat(newClass.getName()).isEqualTo("ArrayList");
     }
