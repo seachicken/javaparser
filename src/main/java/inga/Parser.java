@@ -1,5 +1,6 @@
 package inga;
 
+import com.sun.source.tree.MemberReferenceTree;
 import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTag;
@@ -101,6 +102,16 @@ public class Parser {
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).toList(),
                     normarizeMethodName(methodDecl.name.toString(), className)
+            );
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMemberReference memberReference) {
+            return new JCVariableDecl(
+                    tree.getKind().name(),
+                    tree.getPreferredPosition(),
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).toList(),
+                    normarizeMethodName(memberReference.name.toString(), className),
+                    getFqName(memberReference)
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCVariableDecl variableDecl) {
             return new JCVariableDecl(
@@ -284,15 +295,19 @@ public class Parser {
         }
 
         return switch (tree) {
-            case com.sun.tools.javac.tree.JCTree.JCNewClass newClass -> getFqClassName(newClass.type)
-                    + "."
-                    + newClass.type.tsym.name
-                    + (newClass.args.isEmpty() ? "" : "-")
-                    + newClass.args.stream().map(a -> getFqClassName(a.type)).collect(Collectors.joining("-"));
+            case com.sun.tools.javac.tree.JCTree.JCNewClass newClass ->
+                    getFqClassName(newClass.type) + "." + newClass.type.tsym.name
+                            + (newClass.args.isEmpty() ? "" : "-")
+                            + newClass.args.stream().map(a -> getFqClassName(a.type)).collect(Collectors.joining("-"));
             case com.sun.tools.javac.tree.JCTree.JCFieldAccess fieldAccess ->
                     getFqClassName(fieldAccess.selected.type) + "." + fieldAccess.name.toString()
                             + (fieldAccess.type.getParameterTypes().isEmpty() ? "" : "-")
                             + fieldAccess.type.getParameterTypes().stream().map(this::getFqClassName).collect(Collectors.joining("-"));
+            case com.sun.tools.javac.tree.JCTree.JCMemberReference memberReference ->
+                    getFqClassName(memberReference.expr.type) + "." + normarizeMethodName(memberReference.name.toString(), ((com.sun.tools.javac.tree.JCTree.JCIdent) memberReference.expr).name.toString())
+                            + (memberReference.mode == MemberReferenceTree.ReferenceMode.INVOKE
+                            ? (memberReference.type.allparams().isEmpty() ? "" : "-") + memberReference.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-"))
+                            : (memberReference.expr.type.allparams().isEmpty() ? "" : "-") + memberReference.expr.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-")));
             default -> "";
         };
     }
