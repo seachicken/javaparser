@@ -31,11 +31,16 @@ public class Parser {
                         "-proc:none"
                 );
             }
+            System.err.println("begin getTask. options: " + options);
             var task = (JavacTask) compiler.getTask(null, fileManager, silence, options, null, objects);
             var tree = new JCTree();
+            System.err.println("begin parse");
             for (var unit : task.parse()) {
+                System.err.println("end parse");
                 if (withAnalyze) {
+                    System.err.println("begin analyze");
                     task.analyze();
+                    System.err.println("end analyze");
                 }
                 tree.setChildren(
                         List.of(parse(
