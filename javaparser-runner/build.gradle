@@ -3,6 +3,9 @@ plugins {
     id 'application'
 }
 
+group 'inga'
+version '0.7.0-pre.0'
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
@@ -10,6 +13,7 @@ java {
 }
 
 jar {
+    archiveBaseName.set('javaparser')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
