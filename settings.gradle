@@ -1,2 +1,6 @@
 rootProject.name = 'javaparser'
+include 'javaparser-8'
+include 'javaparser-21'
+include 'javaparser-core'
+include 'javaparser-runner'
 

@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+def compiler = javaToolchains.compilerFor {
+    languageVersion.set(JavaLanguageVersion.of(8))
+}
+
+dependencies {
+    implementation project(':javaparser-core')
+    implementation files(compiler.get().metadata.installationPath.file("lib/tools.jar"))
+//    compileOnly files("${System.getProperty('java.home')}/../lib/tools.jar")
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//tasks.withType(JavaCompile).configureEach {
+//    sourceCompatibility = JavaVersion.VERSION_1_8
+//    targetCompatibility = JavaVersion.VERSION_1_8
+//}
