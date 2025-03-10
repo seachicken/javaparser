@@ -12,7 +12,7 @@ def compiler = javaToolchains.compilerFor {
 
 dependencies {
     implementation project(':javaparser-core')
-    implementation files(compiler.get().metadata.installationPath.file("lib/tools.jar"))
+    compileOnly files(compiler.get().metadata.installationPath.file("lib/tools.jar"))
 //    compileOnly files("${System.getProperty('java.home')}/../lib/tools.jar")
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
