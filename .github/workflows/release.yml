@@ -21,7 +21,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Execute Gradle build
-      run: ./gradlew :javaparser-runner:jar --debug
+      run: ./gradlew build
     - name: Set version
       run: |
         TAG=${{ github.ref_name }}

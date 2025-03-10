@@ -3,9 +3,6 @@ plugins {
     id 'application'
 }
 
-group 'inga'
-version '0.7.0-pre.0'
-
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
@@ -33,9 +30,9 @@ repositories {
 
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    implementation project(':javaparser-8')
+    implementation project(':javaparser-21')
     implementation project(':javaparser-core')
-    runtimeOnly project(':javaparser-8')
-    runtimeOnly project(':javaparser-21')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
