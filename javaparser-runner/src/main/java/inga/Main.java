@@ -54,7 +54,7 @@ public class Main {
         int version = Integer.parseInt(splitVersion[0]);
         String parserName = "inga.Java8Parser";
         try {
-            if (version >= 21) {
+            if (version >= 9) {
                 parserName = "inga.Java21Parser";
             }
 

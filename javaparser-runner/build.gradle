@@ -31,7 +31,7 @@ repositories {
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     implementation project(':javaparser-8')
-    implementation project(':javaparser-21')
+    implementation project(':javaparser-11')
     implementation project(':javaparser-core')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

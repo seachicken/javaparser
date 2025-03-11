@@ -54,7 +54,7 @@ class Java21ParserTest {
         List<JCMethodDecl> methods = findChildren(jcClass, "METHOD");
         List<JCMethodDecl> overloadMethods = methods
                 .stream()
-                .filter(d -> d.getName().equals("methodOverload")).toList();
+                .filter(d -> d.getName().equals("methodOverload")).collect(Collectors.toList());
 
         JCExpression intType = findChild(findChild(overloadMethods.get(0), "VARIABLE"), "PRIMITIVE_TYPE");
         assertThat(intType.getName()).isEqualTo("INT");
