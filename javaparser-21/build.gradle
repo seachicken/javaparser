@@ -2,6 +2,12 @@ plugins {
     id 'java'
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -20,17 +26,24 @@ repositories {
     mavenCentral()
 }
 
-def compiler = javaToolchains.compilerFor {
-    languageVersion.set(JavaLanguageVersion.of(8))
-}
-
 dependencies {
     implementation project(':javaparser-core')
-    compileOnly files(compiler.get().metadata.installationPath.file("lib/tools.jar"))
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+def args = [
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+]
+
 test {
     useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+//    sourceCompatibility = JavaVersion.VERSION_1_8
+//    targetCompatibility = JavaVersion.VERSION_1_8
+    options.compilerArgs.addAll(args)
 }

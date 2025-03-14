@@ -2,7 +2,6 @@ package inga;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MemberReferenceTree;
-import com.sun.source.tree.TreeVisitor;
 import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTag;
@@ -18,9 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-
-public class Java8Parser implements Parser {
+public class JavaParser implements Parser {
     private String className = "";
 
     public JCTree parse(Path path, boolean withAnalyze, String classPath) {
@@ -28,7 +25,8 @@ public class Java8Parser implements Parser {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null)) {
             Iterable<? extends JavaFileObject> objects = fileManager.getJavaFileObjects(path.toFile());
-            DiagnosticListener silence = diagnostic -> {};
+            DiagnosticListener silence = diagnostic -> {
+            };
             List<String> options = null;
             if (withAnalyze) {
                 options = Arrays.asList(
@@ -59,14 +57,15 @@ public class Java8Parser implements Parser {
 
     private JCTree parse(com.sun.tools.javac.tree.JCTree tree,
                          com.sun.tools.javac.tree.JCTree.JCCompilationUnit root) {
-        if (tree instanceof JCPackageDecl2) {
+        if (tree instanceof com.sun.tools.javac.tree.JCTree.JCPackageDecl) {
+            com.sun.tools.javac.tree.JCTree.JCPackageDecl packageDecl = (com.sun.tools.javac.tree.JCTree.JCPackageDecl) tree;
             return new JCPackageDecl(
-                    "PACKAGE",
+                    tree.getKind().name(),
                     tree.getPreferredPosition(),
-                    -1,
-                    -1,
-                    emptyList(),
-                    ((JCPackageDecl2) tree).getPackageName()
+                    tree.getStartPosition(),
+                    tree.getEndPosition(root.endPositions),
+                    getChildren(tree).stream().map(n -> parse(n, root)).collect(Collectors.toList()),
+                    packageDecl.getPackageName().toString()
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCImport) {
             com.sun.tools.javac.tree.JCTree.JCImport jcImport = (com.sun.tools.javac.tree.JCTree.JCImport) tree;
@@ -236,7 +235,6 @@ public class Java8Parser implements Parser {
         ArrayList<com.sun.tools.javac.tree.JCTree> results = new ArrayList<>();
         if (tree instanceof com.sun.tools.javac.tree.JCTree.JCCompilationUnit) {
             com.sun.tools.javac.tree.JCTree.JCCompilationUnit unit = (com.sun.tools.javac.tree.JCTree.JCCompilationUnit) tree;
-            results.add(new JCPackageDecl2(unit.getPackageName(), unit.getPackageName().toString()));
             results.addAll(unit.defs);
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCClassDecl) {
             com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl = (com.sun.tools.javac.tree.JCTree.JCClassDecl) tree;
@@ -329,7 +327,7 @@ public class Java8Parser implements Parser {
         return results;
     }
 
-    private String normarizeMethodName (String methodName, String className) {
+    private String normarizeMethodName(String methodName, String className) {
         return methodName.equals("<init>") ? className : methodName;
     }
 
@@ -352,9 +350,9 @@ public class Java8Parser implements Parser {
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMemberReference) {
             com.sun.tools.javac.tree.JCTree.JCMemberReference memberReference = (com.sun.tools.javac.tree.JCTree.JCMemberReference) tree;
             result = getFqClassName(memberReference.expr.type) + "." + normarizeMethodName(memberReference.name.toString(), ((com.sun.tools.javac.tree.JCTree.JCIdent) memberReference.expr).name.toString())
-                            + (memberReference.mode == MemberReferenceTree.ReferenceMode.INVOKE
-                            ? (memberReference.type.allparams().isEmpty() ? "" : "-") + memberReference.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-"))
-                            : (memberReference.expr.type.allparams().isEmpty() ? "" : "-") + memberReference.expr.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-")));
+                    + (memberReference.mode == MemberReferenceTree.ReferenceMode.INVOKE
+                    ? (memberReference.type.allparams().isEmpty() ? "" : "-") + memberReference.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-"))
+                    : (memberReference.expr.type.allparams().isEmpty() ? "" : "-") + memberReference.expr.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-")));
         }
         return result;
     }
@@ -372,40 +370,6 @@ public class Java8Parser implements Parser {
             return type.getUpperBound().tsym.flatName().toString();
         } else {
             return type.tsym.flatName().toString();
-        }
-    }
-
-    private static class JCPackageDecl2 extends com.sun.tools.javac.tree.JCTree.JCExpression {
-        private final String packageName;
-
-        public JCPackageDecl2(JCExpression exp, String packageName) {
-            super();
-            setType(exp.type);
-            setPos(exp.pos);
-            this.packageName = packageName;
-        }
-
-        public String getPackageName() {
-            return packageName;
-        }
-
-        @Override
-        public Tag getTag() {
-            return null;
-        }
-
-        @Override
-        public void accept(Visitor visitor) {
-        }
-
-        @Override
-        public Kind getKind() {
-            return null;
-        }
-
-        @Override
-        public <R, D> R accept(TreeVisitor<R, D> treeVisitor, D d) {
-            return null;
         }
     }
 }

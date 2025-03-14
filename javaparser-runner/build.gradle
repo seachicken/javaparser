@@ -30,8 +30,10 @@ repositories {
 
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
-    implementation project(':javaparser-8')
-    implementation project(':javaparser-11')
+//    runtimeOnly project(':javaparser-8')
+//    runtimeOnly project(':javaparser-11')
+//    runtimeOnly project(':javaparser-17')
+//    implementation project(':javaparser-21')
     implementation project(':javaparser-core')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -41,7 +43,9 @@ test {
     useJUnitPlatform()
 }
 
-//tasks.withType(JavaCompile).configureEach {
-//    sourceCompatibility = JavaVersion.VERSION_1_8.toString()
-//    targetCompatibility = JavaVersion.VERSION_1_8.toString()
-//}
+tasks.withType(JavaCompile).configureEach {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+//    options.release.set(8)
+    options.release.set(null)
+}

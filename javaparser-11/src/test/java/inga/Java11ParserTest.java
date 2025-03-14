@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class Java21ParserTest {
-    private Java21Parser parser;
+class Java11ParserTest {
+    private JavaParser parser;
 
     @BeforeEach
     void setUp() {
-        parser = new Java21Parser();
+        parser = new JavaParser();
     }
 
     @Test

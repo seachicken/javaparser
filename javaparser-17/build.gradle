@@ -4,7 +4,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -29,50 +29,27 @@ repositories {
 dependencies {
     implementation project(':javaparser-core')
     testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+test {
+    useJUnitPlatform()
+}
+
 def args = [
+//        '--add-modules', 'jdk.compiler',
         '--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
         '--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
         '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
 ]
 
-test {
-    useJUnitPlatform()
-    jvmArgs(args)
-}
-//
-//tasks.compileJava {
-//    if (JavaVersion.current().isJava8()) {
-//        java.targetCompatibility = JavaVersion.VERSION_1_8
-//    } else {
-//        options.release.set(21)
-//    }
-//}
-
 tasks.withType(JavaCompile).configureEach {
 //    sourceCompatibility = JavaVersion.VERSION_1_8
-////    javaCompiler.set(javaToolchains.compilerFor {
-////        languageVersion.set(JavaLanguageVersion.of(8))
-////    })
 //    targetCompatibility = JavaVersion.VERSION_1_8
-//    if (JavaVersion.current().isJava9Compatible()) {
-////        options.release.set(null)
-//        options.release.set(8)
-//    }
     options.compilerArgs.addAll(args)
-//    options.compilerArgs.add('--source')
-//    options.compilerArgs.add('21')
-//    options.compilerArgs.add('--target')
-//    options.compilerArgs.add('8')
-////    options.release.set(null)
-////    options.release.set(8)
+//    options.release.set(null)
+//    options.release.set(8)
 //    if (JavaVersion.current().isJava9Compatible()) {
 //        options.release.set(8)
-//    } else {
-//        sourceCompatibility = JavaVersion.VERSION_21
-//        targetCompatibility = JavaVersion.VERSION_1_8
 //    }
 }

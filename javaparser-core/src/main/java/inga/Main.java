@@ -4,17 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inga.model.JCTree;
 
-import java.io.IOException;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) {
@@ -52,18 +51,31 @@ public class Main {
         String javaVersion = System.getProperty("java.version");
         String[] splitVersion = javaVersion.split("[.-]");
         int version = Integer.parseInt(splitVersion[0]);
-        String parserName = "inga.Java8Parser";
-        try {
-//            if (version >= 21) {
-//                parserName = "inga.Java21Parser";
-//            } else if (version >= 9) {
-            if (version >= 17) {
-                parserName = "inga.Java17Parser";
-            } else if (version >= 9) {
-//            if (version >= 9) {
-                parserName = "inga.Java11Parser";
+        if (version == 1) {
+            try {
+                File toolsJar = new File(System.getProperty("java.home") + "/../lib/tools.jar");
+                if (toolsJar.exists()) {
+                    final Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                    method.setAccessible(true);
+                    method.invoke(ClassLoader.getSystemClassLoader(), toolsJar.toURI().toURL());
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to add tools.jar to classpath", e);
             }
-            System.out.println("version: " + version + ", parserName: " + parserName);
+        }
+        String parserName = "inga.JavaParser";
+        try {
+////            if (version >= 21) {
+////                parserName = "inga.Java21Parser";
+////            } else if (version >= 9) {
+//            if (version >= 17) {
+//                parserName = "inga.Java17Parser";
+//            } else if (version >= 9) {
+////            if (version >= 9) {
+//                parserName = "inga.Java11Parser";
+//            } else {
+//            }
+            System.out.println("version: " + version);
 
 //            System.err.println(String.format("%s class is not found. javaVersion: %s", parserName, javaVersion));
 
