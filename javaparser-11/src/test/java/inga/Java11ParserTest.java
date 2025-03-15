@@ -31,7 +31,7 @@ class Java11ParserTest {
         JCClassDecl jcClass = findChild(file, "CLASS");
         assertThat(jcClass.getName()).isEqualTo("Class");
 
-        JCMethodDecl method = findChild(jcClass, "METHOD");
+        JCVariableDecl method = findChild(jcClass, "METHOD");
         assertThat(method.getName()).isEqualTo("method");
     }
 
@@ -40,7 +40,7 @@ class Java11ParserTest {
         JCTree tree = parser.parse(readFile("java/ClassDiamondOperator.java"), false, "");
         JCTree file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
-        JCMethodDecl method = findChild(jcClass, "METHOD");
+        JCVariableDecl method = findChild(jcClass, "METHOD");
         JCVariableDecl newClass = findChild(findChild(findChild(method, "BLOCK"), "VARIABLE"), "NEW_CLASS");
 
         assertThat(newClass.getName()).isEqualTo("ArrayList");
@@ -51,8 +51,8 @@ class Java11ParserTest {
         JCTree tree = parser.parse(readFile("java/Class.java"), false, "");
         JCTree file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
-        List<JCMethodDecl> methods = findChildren(jcClass, "METHOD");
-        List<JCMethodDecl> overloadMethods = methods
+        List<JCVariableDecl> methods = findChildren(jcClass, "METHOD");
+        List<JCVariableDecl> overloadMethods = methods
                 .stream()
                 .filter(d -> d.getName().equals("methodOverload")).collect(Collectors.toList());
 
@@ -71,7 +71,7 @@ class Java11ParserTest {
         JCTree tree = parser.parse(readFile("java/ClassConstructor.java"), false, "");
         JCTree file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
-        JCMethodDecl constructor = findChild(jcClass, "METHOD");
+        JCVariableDecl constructor = findChild(jcClass, "METHOD");
 
         assertThat(constructor.getName()).isEqualTo("Class");
     }

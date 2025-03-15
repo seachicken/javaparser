@@ -25,8 +25,7 @@ public class JavaParser implements Parser {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null)) {
             Iterable<? extends JavaFileObject> objects = fileManager.getJavaFileObjects(path.toFile());
-            DiagnosticListener silence = diagnostic -> {
-            };
+            DiagnosticListener silence = diagnostic -> {};
             List<String> options = null;
             if (withAnalyze) {
                 options = Arrays.asList(
@@ -108,13 +107,14 @@ public class JavaParser implements Parser {
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl) {
             com.sun.tools.javac.tree.JCTree.JCMethodDecl methodDecl = (com.sun.tools.javac.tree.JCTree.JCMethodDecl) tree;
-            return new JCMethodDecl(
+            return new JCVariableDecl(
                     tree.getKind().name(),
                     tree.getPreferredPosition(),
                     tree.getStartPosition(),
                     tree.getEndPosition(root.endPositions),
                     getChildren(tree).stream().map(n -> parse(n, root)).collect(Collectors.toList()),
-                    normarizeMethodName(methodDecl.name.toString(), className)
+                    normarizeMethodName(methodDecl.name.toString(), className),
+                    getFqName(methodDecl)
             );
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMemberReference) {
             com.sun.tools.javac.tree.JCTree.JCMemberReference memberReference = (com.sun.tools.javac.tree.JCTree.JCMemberReference) tree;
@@ -353,6 +353,11 @@ public class JavaParser implements Parser {
                     + (memberReference.mode == MemberReferenceTree.ReferenceMode.INVOKE
                     ? (memberReference.type.allparams().isEmpty() ? "" : "-") + memberReference.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-"))
                     : (memberReference.expr.type.allparams().isEmpty() ? "" : "-") + memberReference.expr.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-")));
+        } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl) {
+            com.sun.tools.javac.tree.JCTree.JCMethodDecl method = (com.sun.tools.javac.tree.JCTree.JCMethodDecl) tree;
+            result = method.sym.owner.flatName() + "." + normarizeMethodName(method.name.toString(), className)
+                    + (method.type.getParameterTypes().isEmpty() ? "" : "-")
+                    + method.type.getParameterTypes().stream().map(this::getFqClassName).collect(Collectors.joining("-"));
         }
         return result;
     }

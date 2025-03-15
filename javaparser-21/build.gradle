@@ -8,6 +8,14 @@ java {
     }
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = project(':javaparser-11').sourceSets.main.java.srcDirs
+        }
+    }
+}
+
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -27,6 +35,7 @@ repositories {
 }
 
 dependencies {
+//    compileOnly project(':javaparser-17')
     implementation project(':javaparser-core')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

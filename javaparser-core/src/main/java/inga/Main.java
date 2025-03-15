@@ -75,7 +75,7 @@ public class Main {
 //                parserName = "inga.Java11Parser";
 //            } else {
 //            }
-            System.out.println("version: " + version);
+//            System.out.println("version: " + version);
 
 //            System.err.println(String.format("%s class is not found. javaVersion: %s", parserName, javaVersion));
 

@@ -8,6 +8,14 @@ java {
     }
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = project(':javaparser-11').sourceSets.main.java.srcDirs
+        }
+    }
+}
+
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
