@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = project(':javaparser-11').sourceSets.main.java.srcDirs
+        }
+    }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes "Main-Class": "inga.Main"
+    }
+
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':javaparser-core')
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+def args = [
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+]
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.addAll(args)
+}
