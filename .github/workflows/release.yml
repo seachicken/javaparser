@@ -12,23 +12,33 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 21
+    - uses: actions/checkout@v4
+    - name: Set up JDK 8
       uses: actions/setup-java@v3
       with:
-        java-version: '21'
         distribution: 'temurin'
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: build
+        java-version: '8'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Execute Gradle build
+      run: ./gradlew build
     - name: Set version
       run: |
         TAG=${{ github.ref_name }}
         echo "VERSION=${TAG#v}" >> $GITHUB_ENV
     - name: Upload to GitHub Releases
       if: "!contains(github.ref_name, 'pre')"
-      run: gh release create --title ${{ github.ref_name }} --generate-notes ${{ github.ref_name }} ./build/libs/javaparser-${VERSION}.jar
+      run: |
+        gh release create --title ${{ github.ref_name }} --generate-notes ${{ github.ref_name }} \
+          ./javaparser-8/build/libs/javaparser-8-${VERSION}.jar \
+          ./javaparser-11/build/libs/javaparser-11-${VERSION}.jar \
+          ./javaparser-17/build/libs/javaparser-17-${VERSION}.jar \
+          ./javaparser-21/build/libs/javaparser-21-${VERSION}.jar
     - name: Upload to GitHub Releases for pre-release
       if: "contains(github.ref_name, 'pre')"
-      run: gh release create --title ${{ github.ref_name }} --generate-notes --prerelease ${{ github.ref_name }} ./build/libs/javaparser-${VERSION}.jar
+      run: |
+        gh release create --title ${{ github.ref_name }} --generate-notes --prerelease ${{ github.ref_name }} \
+          ./javaparser-8/build/libs/javaparser-8-${VERSION}.jar \
+          ./javaparser-11/build/libs/javaparser-11-${VERSION}.jar \
+          ./javaparser-17/build/libs/javaparser-17-${VERSION}.jar \
+          ./javaparser-21/build/libs/javaparser-21-${VERSION}.jar

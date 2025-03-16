@@ -6,22 +6,24 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ParserTest {
-    private Parser parser;
+class JavaParserTest {
+    private JavaParser parser;
 
     @BeforeEach
     void setUp() {
-        parser = new Parser();
+        parser = new JavaParser();
     }
 
     @Test
     void parseClass() {
         var tree = parser.parse(readFile("java/Class.java"), false, "");
-        JCTree file = findChild(tree, "COMPILATION_UNIT");
+        var file = findChild(tree, "COMPILATION_UNIT");
 
         JCPackageDecl jcPackage = findChild(file, "PACKAGE");
         assertThat(jcPackage.getPackageName()).isEqualTo("fixtures.java");
@@ -29,16 +31,16 @@ class ParserTest {
         JCClassDecl jcClass = findChild(file, "CLASS");
         assertThat(jcClass.getName()).isEqualTo("Class");
 
-        JCMethodDecl method = findChild(jcClass, "METHOD");
+        JCVariableDecl method = findChild(jcClass, "METHOD");
         assertThat(method.getName()).isEqualTo("method");
     }
 
     @Test
     void removeDiamondOperatorFromNewClass() {
         var tree = parser.parse(readFile("java/ClassDiamondOperator.java"), false, "");
-        JCTree file = findChild(tree, "COMPILATION_UNIT");
+        var file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
-        JCMethodDecl method = findChild(jcClass, "METHOD");
+        JCVariableDecl method = findChild(jcClass, "METHOD");
         JCVariableDecl newClass = findChild(findChild(findChild(method, "BLOCK"), "VARIABLE"), "NEW_CLASS");
 
         assertThat(newClass.getName()).isEqualTo("ArrayList");
@@ -47,12 +49,12 @@ class ParserTest {
     @Test
     void parseOverloadMethods() {
         var tree = parser.parse(readFile("java/Class.java"), false, "");
-        JCTree file = findChild(tree, "COMPILATION_UNIT");
+        var file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
-        List<JCMethodDecl> methods = findChildren(jcClass, "METHOD");
-        List<JCMethodDecl> overloadMethods = methods
+        List<JCVariableDecl> methods = findChildren(jcClass, "METHOD");
+        List<JCVariableDecl> overloadMethods = methods
                 .stream()
-                .filter(d -> d.getName().equals("methodOverload")).toList();
+                .filter(d -> d.getName().equals("methodOverload")).collect(Collectors.toList());
 
         JCExpression intType = findChild(findChild(overloadMethods.get(0), "VARIABLE"), "PRIMITIVE_TYPE");
         assertThat(intType.getName()).isEqualTo("INT");
@@ -67,9 +69,9 @@ class ParserTest {
     @Test
     void parseConstructor() {
         var tree = parser.parse(readFile("java/ClassConstructor.java"), false, "");
-        JCTree file = findChild(tree, "COMPILATION_UNIT");
+        var file = findChild(tree, "COMPILATION_UNIT");
         JCClassDecl jcClass = findChild(file, "CLASS");
-        JCMethodDecl constructor = findChild(jcClass, "METHOD");
+        JCVariableDecl constructor = findChild(jcClass, "METHOD");
 
         assertThat(constructor.getName()).isEqualTo("Class");
     }
@@ -79,7 +81,7 @@ class ParserTest {
         @Test
         void parseGetMethod() {
             var tree = parser.parse(readFile("spring/RestController.java"), false, "");
-            JCTree file = findChild(tree, "COMPILATION_UNIT");
+            var file = findChild(tree, "COMPILATION_UNIT");
             JCClassDecl jcClass = findChild(file, "CLASS");
 
             List<JCExpression> annotations = findChildren(findChild(jcClass, "MODIFIERS"), "ANNOTATION");
@@ -99,10 +101,10 @@ class ParserTest {
     }
 
     private <T extends JCTree> List<T> findChildren(JCTree tree, String type) {
-        return (List<T>) tree.getChildren().stream().filter(e -> e.getType().equals(type)).toList();
+        return (List<T>) tree.getChildren().stream().filter(e -> e.getType().equals(type)).collect(Collectors.toList());
     }
 
     private Path readFile(String path) {
-        return Path.of(getClass().getClassLoader().getResource("fixtures/" + path).getFile());
+        return Paths.get(getClass().getClassLoader().getResource("fixtures/" + path).getFile());
     }
 }
