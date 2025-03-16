@@ -345,7 +345,7 @@ public class JavaParser implements Parser {
                     + fieldAccess.type.getParameterTypes().stream().map(this::getFqClassName).collect(Collectors.joining("-"));
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMemberReference) {
             var memberReference = (com.sun.tools.javac.tree.JCTree.JCMemberReference) tree;
-            result = getFqClassName(memberReference.expr.type) + "." + normarizeMethodName(memberReference.name.toString(), ((com.sun.tools.javac.tree.JCTree.JCIdent) memberReference.expr).name.toString())
+            result = getFqClassName(memberReference.expr.type) + "." + normarizeMethodName(memberReference.name.toString(), getClassName(memberReference.expr.type))
                     + (memberReference.mode == MemberReferenceTree.ReferenceMode.INVOKE
                     ? (memberReference.type.allparams().isEmpty() ? "" : "-") + memberReference.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-"))
                     : (memberReference.expr.type.allparams().isEmpty() ? "" : "-") + memberReference.expr.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-")));
@@ -371,6 +371,14 @@ public class JavaParser implements Parser {
             return type.getUpperBound().tsym.flatName().toString();
         } else {
             return type.tsym.flatName().toString();
+        }
+    }
+
+    private String getClassName(Type type) {
+        if (type.getTag() == TypeTag.ARRAY) {
+            return type.toString();
+        } else {
+            return type.tsym.name.toString();
         }
     }
 
