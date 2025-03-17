@@ -332,30 +332,34 @@ public class JavaParser implements Parser {
             return "";
         }
 
-        String result = "";
         if (tree instanceof com.sun.tools.javac.tree.JCTree.JCNewClass) {
             var newClass = (com.sun.tools.javac.tree.JCTree.JCNewClass) tree;
-            result = getFqClassName(newClass.type) + "." + newClass.type.tsym.name
+            return getFqClassName(newClass.type) + "." + newClass.type.tsym.name
                     + (newClass.args.isEmpty() ? "" : "-")
                     + newClass.args.stream().map(a -> getFqClassName(a.type)).collect(Collectors.joining("-"));
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCFieldAccess) {
             var fieldAccess = (com.sun.tools.javac.tree.JCTree.JCFieldAccess) tree;
-            result = getFqClassName(fieldAccess.selected.type) + "." + fieldAccess.name.toString()
+            return getFqClassName(fieldAccess.selected.type) + "." + fieldAccess.name.toString()
                     + (fieldAccess.type.getParameterTypes().isEmpty() ? "" : "-")
                     + fieldAccess.type.getParameterTypes().stream().map(this::getFqClassName).collect(Collectors.joining("-"));
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMemberReference) {
             var memberReference = (com.sun.tools.javac.tree.JCTree.JCMemberReference) tree;
-            result = getFqClassName(memberReference.expr.type) + "." + normarizeMethodName(memberReference.name.toString(), getClassName(memberReference.expr.type))
+            if (memberReference.expr.type == null) {
+                return "";
+            }
+
+            return getFqClassName(memberReference.expr.type) + "." + normarizeMethodName(memberReference.name.toString(), getClassName(memberReference.expr.type))
                     + (memberReference.mode == MemberReferenceTree.ReferenceMode.INVOKE
                     ? (memberReference.type.allparams().isEmpty() ? "" : "-") + memberReference.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-"))
                     : (memberReference.expr.type.allparams().isEmpty() ? "" : "-") + memberReference.expr.type.allparams().stream().map(this::getFqClassName).collect(Collectors.joining("-")));
         } else if (tree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl) {
             var method = (com.sun.tools.javac.tree.JCTree.JCMethodDecl) tree;
-            result = method.sym.owner.flatName() + "." + normarizeMethodName(method.name.toString(), className)
+            return method.sym.owner.flatName() + "." + normarizeMethodName(method.name.toString(), className)
                     + (method.type.getParameterTypes().isEmpty() ? "" : "-")
                     + method.type.getParameterTypes().stream().map(this::getFqClassName).collect(Collectors.joining("-"));
         }
-        return result;
+
+        return "";
     }
 
     private String getFqClassName(Type type) {
@@ -375,6 +379,10 @@ public class JavaParser implements Parser {
     }
 
     private String getClassName(Type type) {
+        if (type == null) {
+            return "";
+        }
+
         if (type.getTag() == TypeTag.ARRAY) {
             return type.toString();
         } else {
