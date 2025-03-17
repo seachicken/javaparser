@@ -1,6 +1,5 @@
 package inga;
 
-import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MemberReferenceTree;
 import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.code.Type;
@@ -373,9 +372,11 @@ public class JavaParser implements Parser {
             return type.toString();
         } else if (type instanceof Type.CapturedType) {
             return type.getUpperBound().tsym.flatName().toString();
-        } else {
+        } else if (type.tsym != null) {
             return type.tsym.flatName().toString();
         }
+
+        return "";
     }
 
     private String getClassName(Type type) {

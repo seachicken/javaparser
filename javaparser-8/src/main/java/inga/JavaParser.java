@@ -376,9 +376,11 @@ public class JavaParser implements Parser {
             return type.toString();
         } else if (type instanceof Type.CapturedType) {
             return type.getUpperBound().tsym.flatName().toString();
-        } else {
+        } else if (type.tsym != null) {
             return type.tsym.flatName().toString();
         }
+
+        return "";
     }
 
     private String getClassName(Type type) {
