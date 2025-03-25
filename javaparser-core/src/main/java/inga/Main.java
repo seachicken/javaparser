@@ -52,6 +52,7 @@ public class Main {
         String[] splitVersion = javaVersion.split("[.-]");
         int version = Integer.parseInt(splitVersion[0]);
         // for Java 8, refer to the tools.jar in the runtime
+        System.err.println("Java version: " + version);
         if (version == 1) {
             try {
                 File toolsJar = new File(System.getProperty("java.home") + "/../lib/tools.jar");
