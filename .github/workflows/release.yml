@@ -16,7 +16,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Execute Gradle build
-      run: ./gradlew build
+      run: |
+        ./gradlew -q javaToolchains
+        ./gradlew build
     - name: Set version
       run: |
         TAG=${{ github.ref_name }}
